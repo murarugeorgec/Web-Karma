@@ -181,8 +181,6 @@ public class GetSuggestionsCommand extends WorksheetSelectionCommand {
 		final Map<String, String> maybeMap = new HashMap<String, String>();
 
 		/* Compute the threshold taking into consideration the total number of unique values */
-		final Double threshold_occ = threshold / occurrences.size();
-
 		Integer max = Integer.MAX_VALUE;
 		Integer min = Integer.MIN_VALUE;
 
@@ -196,7 +194,7 @@ public class GetSuggestionsCommand extends WorksheetSelectionCommand {
 				min = entry.getValue();
 			}
 
-			if (((float) entry.getValue()) / occurrences.size() < threshold_occ) {
+			if (entry.getValue() < threshold) {
 				maybeMistake.add(entry.getKey());
 			}
 		}
