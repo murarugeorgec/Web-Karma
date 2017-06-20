@@ -10,6 +10,11 @@ function TableColumnOptions(wsId, wsColumnId, wsColumnTitle, isLeafNode, isOutof
 			leafOnly: true,
 			leafExcluded: false
 		}, {
+			name: "Get Suggestions",
+			func: getSuggestions,
+			leafOnly: true,
+			leafExcluded: false
+		}, {
 			name: "divider",
 			leafOnly: true,
 			leafExcluded: false
@@ -213,6 +218,12 @@ function TableColumnOptions(wsId, wsColumnId, wsColumnTitle, isLeafNode, isOutof
 	function setSemanticType() {
 		hideDropdown();
 		SetSemanticTypeDialog.getInstance().show(worksheetId, columnId, columnTitle);
+		return false;
+	}
+
+	function getSuggestions() {
+		hideDropdown();
+		GetSuggestionsDialog.getInstance().show(worksheetId, columnId);
 		return false;
 	}
 
@@ -428,6 +439,234 @@ function TableColumnOptions(wsId, wsColumnId, wsColumnTitle, isLeafNode, isOutof
 		return div;
 	};
 };
+
+var GetSuggestionsDialog = (function() {
+	var instance = null;
+
+	function PrivateConstructor() {
+		var dialog = $("#getSuggestionsDialog");
+		var worksheetId, columnId;
+
+		function init() {
+			// Initialize what happens when we show the dialog
+			dialog.on('show.bs.modal', function(e) {
+				$(':radio', dialog).prop('checked', false);
+				$('#ThresholdSuggestions', dialog).val("");
+				hideError();
+			});
+
+			// Initialize handler for Save button
+			$('#btnSave', dialog).on('click', function(e) {
+				e.preventDefault();
+				saveDialog(e);
+			});
+
+		}
+
+		function hideError() {
+			$("div.error", dialog).hide();
+		}
+
+		function showError() {
+			$("div.error", dialog).show();
+		}
+
+		function saveDialog(e) {
+			console.log("Save clicked");
+
+			var checkboxes = dialog.find(":checked");
+			var checkbox = checkboxes[0];
+			var threshold = $("#ThresholdSuggestions").val();
+
+			var info = generateInfoObject(worksheetId, columnId, "GetSuggestionsCommand");
+			var newInfo = info['newInfo'];
+			
+			/* Hide the dialog box */
+			dialog.modal('hide');
+
+			newInfo.push(getParamObject("hTableId", "", "other"));
+			newInfo.push(getParamObject("distanceMetric", checkbox.value, "other"));
+			newInfo.push(getParamObject("threshold", threshold, "other"));
+			info["newInfo"] = JSON.stringify(newInfo);
+			
+			showLoading(info["worksheetId"]);
+			
+			var context = { worksheetId: worksheetId, columnId: columnId };
+			func = SetSuggestionsDialog.getInstance().showSuggestions.bind(context);
+			
+			var returned = sendRequest(info, worksheetId, func);
+		};
+
+		function show(wsId, colId) {
+			worksheetId = wsId;
+			columnId = colId;
+			dialog.modal({
+				keyboard: true,
+				show: true,
+				backdrop: 'static'
+			});
+		};
+
+		return { // Return back the public methods
+			show: show,
+			init: init
+		};
+	};
+
+	function getInstance() {
+		if (!instance) {
+			instance = new PrivateConstructor();
+			instance.init();
+		}
+		return instance;
+	}
+
+	return {
+		getInstance: getInstance
+	};
+
+
+})();
+
+
+var SetSuggestionsDialog = (function() {
+	var instance = null;
+
+	function PrivateConstructor() {
+		var dialog = $("#setSuggestionsDialog");
+		var nodeIds, newValues;
+		var worksheetId, columnId;
+
+		function init() {
+			// Initialize what happens when we show the dialog
+			dialog.on('show.bs.modal', function(e) {
+				hideError();
+			});
+
+			// Initialize handler for Save button
+			$('#btnSave', dialog).on('click', function(e) {
+				e.preventDefault();
+				saveDialog(e);
+			});
+
+		}
+
+		function saveDialog(e) {
+			var userSelection = "";
+			var checkboxes = dialog.find(":checked");
+			var checked = [];
+
+			for (var i = 0; i < checkboxes.length - 1; i++) {
+				var checkbox = checkboxes[i];
+				userSelection = userSelection + checkbox.value + "-;-";
+			}
+
+			if (checkboxes.length > 0) {
+				userSelection = userSelection + checkboxes[checkboxes.length - 1].value;
+			}
+
+			dialog.modal('hide');
+
+			var info = generateInfoObject(worksheetId, columnId, "SetSuggestionsCommand");
+			var newInfo = info['newInfo'];
+
+			showLoading(info["worksheetId"]);
+
+			info["setSuggestedNodes"] = userSelection;
+
+			newInfo.push(getParamObject("setSuggestedNodes", info["setSuggestedNodes"], "other"));
+			
+			info["newInfo"] = JSON.stringify(newInfo);
+			var returned = sendRequest(info, worksheetId);
+		}
+
+
+		function hideError() {
+			$("div.error", dialog).hide();
+		}
+
+		function showError() {
+			$("div.error", dialog).show();
+		}
+
+		function show(wsId, colId) {
+			worksheetId = wsId;
+			columnId = colId;
+			dialog.modal({
+				keyboard: true,
+				show: true,
+				backdrop: 'static'
+			});
+		};
+
+		function showSuggestions(response) {
+			var suggestionUpdate = response["elements"].filter(function(item)
+					{ return item.updateType === "GetSuggestionsUpdate"; });
+
+			if (suggestionUpdate.length == 0) {
+				alert("No suggestion update notification found");
+				return false;
+			}
+
+			suggestionUpdate = suggestionUpdate[0];
+
+			nodeIds = suggestionUpdate["nodeIds"];
+
+			newValues = suggestionUpdate["expandedNewValues"];
+			var showNewValues = suggestionUpdate["displayNewValues"];
+
+			oldValues = suggestionUpdate["expandedOldValues"];
+			var showOldValues = suggestionUpdate["displayOldValues"];
+
+			var dialogContent = $("#userSelection", dialog);
+			dialogContent.empty();
+
+			var hashMapShow = {};
+			var hashMapEdit = {};
+
+			for (var i = 0; i < showOldValues.length; i++) {
+				hashMapShow[showOldValues[i]] = showNewValues[i];
+				hashMapEdit[showOldValues[i]] = [newValues[i], nodeIds[i]];
+			}
+			
+			for (var key in hashMapShow) {
+				var row = $("<div>").addClass("checkbox");
+				var label = $("<label>");
+				var input = $("<input>")
+					.attr("type", "checkbox")
+					.attr("id", "selectentities")
+					.attr("value", hashMapEdit[key][0] + ";-;" + hashMapEdit[key][1]);
+				label.append(input);
+				label.append($("<span>").html(key + " &rarr; " + hashMapShow[key]));
+				row.append(label);
+				dialogContent.append(row);
+			}
+
+			show(this.worksheetId, this.columnId);
+		}
+
+		return { // Return back the public methods
+			showSuggestions: showSuggestions,
+			init: init
+		};
+	};
+
+	function getInstance() {
+		if (!instance) {
+			instance = new PrivateConstructor();
+			instance.init();
+		}
+		return instance;
+	}
+
+	return {
+		getInstance: getInstance
+	};
+
+
+})();
+
+
 
 var AddColumnDialog = (function() {
 	var instance = null;
@@ -1404,7 +1643,7 @@ var UnfoldDialog = (function() {
 		var worksheetId, columnId;
 
 		function init() {
-
+			alert("salut");
 			//Initialize handler for Save button
 			//var me = this;
 			$('#btnSave', dialog).on('click', function(e) {
@@ -1425,10 +1664,13 @@ var UnfoldDialog = (function() {
 			console.log("Save clicked");
 
 			var checkboxes = dialog.find(":checked");
+			alert("nu e bine");
 			if (checkboxes.length == 0) {
+				alert("Gol");
 				hide();
 				return;
 			}
+
 			var checked = checkboxes[0];
 			var otherColumns = $('#unfoldOtherColumns input[type="checkbox"]', dialog).is(":checked");
 			//console.log(checked);

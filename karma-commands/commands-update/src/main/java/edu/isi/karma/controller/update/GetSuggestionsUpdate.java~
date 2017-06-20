@@ -1,0 +1,77 @@
+package edu.isi.karma.controller.update;
+
+import java.io.PrintWriter;
+import java.util.List;
+
+import edu.isi.karma.rep.CellValue;
+import edu.isi.karma.rep.Node;
+import edu.isi.karma.util.JSONUtil;
+import edu.isi.karma.view.VWorkspace;
+import edu.isi.karma.view.ViewPreferences.ViewPreference;
+
+/**
+ * Provides information about a value update to a single node.
+ * 
+ * @author szekely
+ * 
+ */
+public class GetSuggestionsUpdate extends AbstractUpdate {
+
+	public enum JsonKeys {
+		worksheet, nodeIds, displayValues, expandedValues, 
+	}
+	
+	private final String worksheetId;
+
+	private final List<String> nodeIds;
+
+	private final List<CellValue> newValues;
+	
+	private final List<Node.NodeStatus> newStatuses;
+
+	public GetSuggestionsUpdate(String worksheetId, List<String> nodeIds,
+			List<CellValue> newValues) {
+		super();
+		this.worksheetId = worksheetId;
+		this.nodeIds = nodeIds;
+		this.newValues = newValues;
+	}
+
+	@Override
+	public void generateJson(String prefix, PrintWriter pw, VWorkspace vWorkspace) {
+		final List<String> stringNewValues = new ArrayList<String>();
+		final List<String> stringExpandedValues = new ArrayList<String>();
+		
+		int maxValueLength = vWorkspace.getPreferences().getIntViewPreferenceValue(
+				ViewPreference.maxCharactersInCell);
+
+		for (CellValue cell: newValues) {
+			stringNewValues.add(cell.asString());
+
+			if (cell.asString().length() > maxValueLength) {
+				stringExpandedValues.add(JSONUtil.truncateCell(displayValueString, maxValueLength));
+			} else {
+				stringExpandedValues.add(cell.asString());
+			}
+		}
+
+		pw.println(prefix + "{");
+		String newPref = prefix + "  ";
+		pw.println(newPref + JSONUtil.json(GenericJsonKeys.updateType, getUpdateType()));
+		pw.println(newPref + JSONUtil.json(JsonKeys.worksheet, worksheetId));
+		pw.println(newPref + JSONUtil.json(JsonKey.nodeIds, nodeIds));
+		pw.println(newPref + JSONUtil.json(JsonKeys.expandedValues, stringNewValues));
+		pw.println(newPref + JSONUtil.jsonLast(JsonKeys.displayValues, stringExpandedValues));
+
+		pw.println(prefix + "}");
+	}
+	
+	public boolean equals(Object o) {
+		if (o instanceof GetSuggestionsUpdate) {
+			GetSuggestionsUpdate t = (GetSuggestionsUpdate) o;
+			return t.worksheetId.equals(worksheetId) && t.nodeId.equals(nodeIds);
+		}
+
+		return false;
+	}
+}

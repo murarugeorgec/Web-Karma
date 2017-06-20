@@ -123,6 +123,21 @@ public class ExecutionController {
 		}
 	}
 
+	public Command getDefaultCommand(final String info) {
+		CommandFactory cf = commandFactoryMap.get("GetSemanticSuggestionsCommand");
+		JSONArray jsonArr = new JSONArray(info);
+
+		logger.warn(jsonArr.toString());
+		String newInfo = "[{\"name\":\"hNodeId\",\"value\":\"HN8\",\"type\":\"hNodeId\"},{\"name\":\"worksheetId\",\"value\":\"WS5\",\"type\":\"worksheetId\"},{\"name\":\"selectionName\",\"value\":\"DEFAULT_TEST\",\"type\":\"other\"}]";
+		try {
+			return cf.createCommand(newInfo == null ? null : new JSONArray(newInfo), Command.NEW_MODEL, workspace);
+		} catch (Exception e) {
+			logger.error("Error getting command!!", e);
+			return null;
+		}
+	}
+
+
 	public UpdateContainer invokeCommand(Command command) {
 		synchronized (this) {
 			try {

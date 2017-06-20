@@ -1,5 +1,7 @@
 var AnchorDropdownMenu = (function() {
 
+
+
 	var instance = null;
 
 
@@ -21,10 +23,12 @@ var AnchorDropdownMenu = (function() {
 		}
 
 		function suggest() {
-			if(columnType == "ColumnNode")
+			if(columnType == "ColumnNode") {
 				suggestSemanticTypes();
-			else
+			}
+			else {
 				suggestLinks();
+			}
 		}
 
 		function suggestSemanticTypes() {
@@ -50,7 +54,34 @@ var AnchorDropdownMenu = (function() {
 			}
 
 			addSuggestionedLinks(links);
-		}
+		};
+
+		function suggestDefaultSemanticTypes() {
+			worksheetId = "WS5";
+			columnId = "HN8";
+			var semSuggestions = getSuggestedSemanticTypes("WS5", "HN8");
+			var links = [];
+
+			if(semSuggestions != null && semSuggestions["Labels"]) {
+				
+				$.each(semSuggestions["Labels"], function(index, type) {
+					if(type["DisplayLabel"] == "km-dev:columnSubClassOfLink" ||
+							type["DisplayLabel"] == "km-dev:dataPropertyOfColumnLink" ||
+							type["DisplayLabel"] == "km-dev:objectPropertySpecialization") {
+						return;
+					}
+
+					links.push(
+						{"uri": type["FullType"], 
+						"label": type["DisplayLabel"], "rdfsLabel": type["DisplayRDFSLabel"],
+						"source": {"uri": type["DomainUri"], "id": type["DomainId"], "label":type["DisplayDomainLabel"], "rdfsLabel":type["DomainRDFSLabel"]},
+						"target": {"uri": columnDomain, "id": columnId, "label": columnLabel, "rdfsLabel": columnRdfsLabel}
+						});
+				});
+			}
+
+			addSuggestionedLinks(links);
+		};
 
 		function addSuggestionedLinks(suggestedLinks) {
 			var items = [];
@@ -87,9 +118,11 @@ var AnchorDropdownMenu = (function() {
 
 					if($.inArray(linkTypeId, seenLinks) == -1) {
 						//Handle the source
+
 						if(link.source.label.endsWith("(add)")) {
 							link.source.label = link.source.label.substring(0, link.source.label.length-6);
 						}
+
 						link.source.label = getLabelWithoutPrefix(link.source.label);
 						if($.inArray(link.source.id, seenNodes) == -1) {
 							nodes.push({"id":link.source.id, "uri":link.source.uri, "label":link.source.label});
@@ -97,13 +130,17 @@ var AnchorDropdownMenu = (function() {
 						}
 
 						//Hanlde the target
-						if(link.target.label.endsWith("(add)")) {
-							link.target.label = link.target.label.substring(0, link.target.label.length-6);
-						}
-						link.target.label = getLabelWithoutPrefix(link.target.label);
-						if($.inArray(link.target.id, seenNodes) == -1) {
-							nodes.push({"id":link.target.id, "uri":link.target.uri, "label":link.target.label});
-							seenNodes.push(link.target.id);
+
+						if(link.target.label) {
+							if(link.target.label && link.target.label.endsWith("(add)")) {
+								link.target.label = link.target.label.substring(0, link.target.label.length-6);
+							}
+							
+							link.target.label = getLabelWithoutPrefix(link.target.label);
+							if($.inArray(link.target.id, seenNodes) == -1) {
+								nodes.push({"id":link.target.id, "uri":link.target.uri, "label":link.target.label});
+								seenNodes.push(link.target.id);
+							}
 						}
 
 						var linkId = link.source.id + "--" + link.uri + "--" + link.target.id;
@@ -318,6 +355,7 @@ var AnchorDropdownMenu = (function() {
 
 		return { //Return back the public methods
 			show: show,
+			suggestDefaultSemanticTypes: suggestDefaultSemanticTypes,
 			init: init
 		};
 	};

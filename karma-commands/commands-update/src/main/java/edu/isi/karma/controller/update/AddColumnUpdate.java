@@ -33,7 +33,7 @@ import edu.isi.karma.view.VWorkspace;
 
 public class AddColumnUpdate extends AbstractUpdate {
 
-	private static Logger logger =LoggerFactory.getLogger(AddColumnUpdate.class);
+	private static Logger logger = LoggerFactory.getLogger(AddColumnUpdate.class);
 	
 	private final String newHNodeId;
 	private final String worksheetId;

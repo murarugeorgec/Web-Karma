@@ -47,11 +47,13 @@ public class RequestController extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private static Logger logger = LoggerFactory.getLogger(RequestController.class);
+	private Boolean prev = false;
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		String workspaceId = request.getParameter("workspaceId");
-		
-		ExecutionController ctrl = WorkspaceRegistry.getInstance().getExecutionController(workspaceId);
+		String old_request_string = null;
+
+		final ExecutionController ctrl = WorkspaceRegistry.getInstance().getExecutionController(workspaceId);
 		if (ctrl == null) {
 			logger.debug("No execution controller found. This sometime happens when the server is restarted and "
 					+ "an already open window is refereshed (and is okay to happen). A command is sent to the server "
@@ -59,7 +61,7 @@ public class RequestController extends HttpServlet {
 			return;
 		}
 
-		VWorkspace vWorkspace = VWorkspaceRegistry.getInstance().getVWorkspace(workspaceId);
+		final VWorkspace vWorkspace = VWorkspaceRegistry.getInstance().getVWorkspace(workspaceId);
 		String responseString;
 		boolean isPreview = Boolean.parseBoolean(request.getParameter("isPreview"));
 		boolean isUserInteraction = Boolean.parseBoolean(request.getParameter("isUserInteraction"));
@@ -91,12 +93,13 @@ public class RequestController extends HttpServlet {
 			} catch (CommandException e) {
 				responseString = getErrorMessage(vWorkspace, e);
 			}
+		} else {
 
-		}
-		else {
 			Command command = ctrl.getCommand(request);
+
+			UpdateContainer updateContainer;
 			try {
-				UpdateContainer updateContainer =ctrl.invokeCommand(command);
+				updateContainer = ctrl.invokeCommand(command);
 				if (command.getCommandType() != CommandType.notInHistory) {
 					updateContainer.add(new HistoryUpdate(vWorkspace.getWorkspace().getCommandHistory()));
 				}

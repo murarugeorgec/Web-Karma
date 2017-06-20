@@ -112,16 +112,16 @@ public class AddColumnCommand extends WorksheetSelectionCommand {
 		Worksheet worksheet = workspace.getWorksheet(
 				worksheetId);
 		
-		try{
+		try {
 			if(hTableId==null || hTableId.isEmpty()){
 				//get table id based on the hNodeId
 				if(hNodeId==null)
 					throw new KarmaException("TableId and NodeId are empty. Can't add column.");
 				hTableId = workspace.getFactory().getHNode(hNodeId).getHTableId();
 			}
+
 			HTable hTable = workspace.getFactory().getHTable(hTableId);
-			if(hTable == null)
-			{
+			if(hTable == null) {
 				logger.error("No HTable for id "+ hTableId);
 				throw new KarmaException("No HTable for id "+ hTableId );
 			}

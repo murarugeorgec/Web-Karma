@@ -1089,13 +1089,19 @@ public class ModelLearner_KnownModels {
 		
 		OntologyManager ontologyManager = new OntologyManager(contextParameters.getId());
 		File ff = new File(karmaHomeDir + "preloaded-ontologies/");
+
+		System.out.println("qweqweqweqwewqeqweqeqweqw");
+		System.out.println(karmaHomeDir);
 		File[] files = ff.listFiles();
+
 		for (File f : files) {
 			if(f.getName().startsWith(".") || f.isDirectory()) {
 				continue; //Ignore . files
 			}
 			ontologyManager.doImport(f, "UTF-8");
 		}
+		System.out.println("-----------------------------------------------");
+
 		ontologyManager.updateCache();  
 
 		ModelLearningGraph modelLearningGraph = null;

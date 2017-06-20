@@ -1,4 +1,5 @@
 
+
 <%@page import="edu.isi.karma.config.ModelingConfiguration"%>
 <%@page import="edu.isi.karma.config.ModelingConfigurationRegistry"%>
 <%@page import="edu.isi.karma.webserver.ContextParametersRegistry"%>
@@ -584,5 +585,14 @@ and related projects, please see: http://www.isi.edu/integration
             });
             
         </script>
+
+	<script type="text/javascript">
+            $("#btnSaveOptions").click(function(e) {
+		setTimeout(function(){
+		AnchorDropdownMenu.getInstance().suggestDefaultSemanticTypes();
+		}, 5000);
+            });
+        </script>
+
     </body>
 </html>

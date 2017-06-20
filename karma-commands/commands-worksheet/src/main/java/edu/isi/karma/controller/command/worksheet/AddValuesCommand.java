@@ -34,7 +34,7 @@ import edu.isi.karma.util.JSONUtil;
 import edu.isi.karma.util.Util;
 import edu.isi.karma.webserver.KarmaException;
 
-public class AddValuesCommand extends WorksheetSelectionCommand{
+public class AddValuesCommand extends WorksheetSelectionCommand {
 
 
 	private final String hNodeId;
@@ -293,5 +293,4 @@ public class AddValuesCommand extends WorksheetSelectionCommand{
 			node.setValue(value, NodeStatus.original, factory);
 		return flag;
 	}
-
 }

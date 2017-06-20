@@ -82,7 +82,8 @@ public class EditCellCommand extends WorksheetSelectionCommand {
 		if (node.hasNestedTable()) {
 			throw new CommandException(this, "Cell " + nodeIdArg
 					+ " has a nested table. It cannot be edited.");
-		}		
+		}
+
 		node.setValue(newValueArg, Node.NodeStatus.edited,
 				workspace.getFactory());
 		WorksheetUpdateFactory.detectSelectionStatusChange(worksheetId, workspace, this);

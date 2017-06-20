@@ -288,9 +288,9 @@ public class Table extends RepEntity {
 
 	public void setValueInAllRows(String hNodeId, CellValue value,
 			RepFactory factory, SuperSelection sel) {
-		// logger.info("Setting value of column " +
-		// factory.getColumnName(hNodeId) + " to "
-		// + value.asString());
+		 logger.info("Setting value of column " +
+		 factory.getColumnName(hNodeId) + " to "
+		 + value.asString());
 		for (Row r : rows) {
 			if (sel.isSelected(r))
 				continue;

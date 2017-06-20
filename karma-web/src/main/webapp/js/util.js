@@ -21,11 +21,12 @@ function sendRequest(info, worksheetId, callback) {
 		complete: function(xhr, textStatus) {
 			var json = $.parseJSON(xhr.responseText);
 			parse(json);
+
 			if (worksheetId == undefined)
 				hideWaitingSignOnScreen();
 			else
 				hideLoading(worksheetId);
-			if(callback)
+			if (callback)
 				callback(json);
 		},
 		error: function(xhr, textStatus) {

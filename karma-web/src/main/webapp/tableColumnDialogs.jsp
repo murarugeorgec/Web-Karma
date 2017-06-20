@@ -41,6 +41,72 @@
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<div class="modal fade" id="getSuggestionsDialog" tabindex="-1">
+  <div class="modal-dialog">
+		<form class="bs-example bs-example-form" role="form">
+			<div class="modal-content">
+				<div class="modal-header">
+					  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					   <h4 class="modal-title">Get Suggestions</h4>
+				</div>
+				<div class="modal-body">
+                                        <form class="form-horizontal">
+						<div class="form-group" id="distanceMetrics">
+							<h4>Select Distance Metric:</h4>
+							<div class="radio">
+								<label>
+									<input type="radio" name="stringMetrics" value="jaro-winkler" id="selectMetrics">
+										<span>Jaro-Winkler</span>
+									</input>
+								</label>
+							</div>
+							<div class="radio">
+								<label>
+									<input type="radio" name="stringMetrics" value="levenshtein" id="selectMetrics">
+										<span>Levenshtein</span>
+									</input>
+								</label>
+							</div>
+						</div>
+					    	<div class="form-group">
+							<div class="col-sm-4">
+								<label for="thresholdValue">Threshold occurences</label>
+								<input type="text" class="form-control" id="ThresholdSuggestions" placeholder="Threshold">
+							</div>
+						</div>
+						<br><br></br></br>
+					</form>
+				  </div> <!-- /.modal-body -->
+				  <div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary" id="btnSave">Suggest</button>
+				  </div> <!-- /.modal-footer -->
+			</div> <!-- /.modal-content -->
+		</form>
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="setSuggestionsDialog" tabindex="-1">
+  <div class="modal-dialog">
+		<form class="bs-example bs-example-form" role="form">
+			<div class="modal-content">
+				 <div class="modal-header">
+					  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					   <h4 class="modal-title">Select Suggestions</h4>
+				  </div>
+				  <div class="modal-body">
+					<div id="userSelection"></div>
+				  </div> <!-- /.modal-body -->
+				  <div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary" id="btnSave">OK</button>
+				  </div> <!-- /.modal-footer -->
+			</div><!-- /.modal-content -->
+		</form>
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
 <div class="modal fade" id="renameColumnDialog" tabindex="-1">
   <div class="modal-dialog">
 		<form class="bs-example bs-example-form" role="form">

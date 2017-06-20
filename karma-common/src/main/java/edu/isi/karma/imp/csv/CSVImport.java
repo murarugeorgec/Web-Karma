@@ -32,6 +32,7 @@ public class CSVImport extends Import {
     protected final JSONArray columnsJson;
     protected final String sourceName;
     
+
     public CSVImport(int headerRowIndex, int dataStartRowIndex,
             char delimiter, char quoteCharacter, String encoding,
             int maxNumLines,
@@ -60,7 +61,6 @@ public class CSVImport extends Import {
         this.maxNumLines = maxNumLines;
         this.is = is;
         this.columnsJson = columnsJson;
-        
     }
     
     public CSVImport duplicate() throws IOException {
@@ -68,7 +68,6 @@ public class CSVImport extends Import {
     }
     
     @Override
-
     public Worksheet generateWorksheet() throws IOException, KarmaException {
         Table dataTable = getWorksheet().getDataTable();
 
@@ -103,6 +102,7 @@ public class CSVImport extends Import {
 
             rowCount++;
         }
+
         reader.close();
         getWorksheet().getMetadataContainer().getWorksheetProperties().setPropertyValue(Property.sourceType, SourceTypes.CSV.toString());
         return getWorksheet();
