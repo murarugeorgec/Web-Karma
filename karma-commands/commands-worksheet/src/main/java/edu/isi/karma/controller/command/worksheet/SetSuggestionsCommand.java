@@ -131,9 +131,6 @@ public class SetSuggestionsCommand extends WorksheetSelectionCommand {
 			newNodes.put(values[1], values[0]);
 		}
 
-		System.out.println(newNodes);
-
-
 		for (Map.Entry<String, String> entry : newNodes.entrySet()) {
 			editedHNodeIds.add(new EditCellCommand(id, model, worksheetId,
 						entry.getKey(), entry.getValue(), selectionId));

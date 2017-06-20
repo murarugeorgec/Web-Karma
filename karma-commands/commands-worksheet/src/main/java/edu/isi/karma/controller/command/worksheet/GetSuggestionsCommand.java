@@ -120,9 +120,6 @@ public class GetSuggestionsCommand extends WorksheetSelectionCommand {
 			return new UpdateContainer(new ErrorUpdate(e.getMessage()));
 		}
 	
-		System.out.println(nodeIds);
-		System.out.println(newValues);
-		System.out.println(oldValues);
 		UpdateContainer uc = new UpdateContainer(new GetSuggestionsUpdate(worksheetId, nodeIds, newValues, oldValues));
 
 		return uc;
@@ -165,74 +162,6 @@ public class GetSuggestionsCommand extends WorksheetSelectionCommand {
 		}
 	}
 
-
-	/*
-	@Override
-	public UpdateContainer doIt(Workspace workspace) {
-		inputColumns.clear();
-		outputColumns.clear();
-		Worksheet worksheet = workspace.getWorksheet(worksheetId);
-
-		inputColumns.add(hNodeId);
-		outputColumns.add(hNodeId);
-
-		UpdateContainer uc = new UpdateContainer(new InfoUpdate("Get Suggestions"));
-		try {
-			populateColumnWithSuggestedValue(worksheet, workspace.getFactory());
-		} catch (CommandException e) {
-			logger.error("Error in GetSuggestionsCommand - similarity" + e.toString());
-			Util.logException(logger, e);
-			return new UpdateContainer(new ErrorUpdate(e.getMessage()));
-		}
-
-		for (ICommand comm: editedHNodeIds) {
-			try {
-				uc.append(comm.doIt(workspace));
-			} catch (CommandException e) {
-				logger.error("Error in GetSuggestionsCommand" + e.toString());
-				Util.logException(logger, e);
-				return new UpdateContainer(new ErrorUpdate(e.getMessage()));
-			}
-		}
-
-		return uc;
-	}
-
-	private void populateColumnWithSuggestedValue(Worksheet worksheet, RepFactory factory) throws CommandException {
-		final HashMap<String, Integer> occurrences = new HashMap<String, Integer>();
-		SuperSelection selection = getSuperSelection(worksheet);
-		List<HNodePath> columnPaths = worksheet.getHeaders().getAllPaths();
-		HNodePath selectedPath = null;
-
-		for (HNodePath path : columnPaths) {
-			if (path.getLeaf().getId().equals(hNodeId)) {
-				selectedPath = path;
-			}
-		}
-
-		Collection<Node> nodes = new ArrayList<>(Math.max(1000, worksheet.getDataTable().getNumRows()));
-		worksheet.getDataTable().collectNodes(selectedPath, nodes, selection);
-
-		for (Node node : nodes) {
-			String nodeVal = node.getValue().asString();
-			if (nodeVal.length() != 0) {
-				Integer oldNr = occurrences.get(nodeVal);
-				occurrences.put(nodeVal, oldNr == null ? 1 : oldNr + 1);
-			}
-		}
-
-		final Map<String, String> maybeMistaken = getSuggestions(occurrences);
-
-		for (Node node : nodes) {
-			String nodeVal = node.getValue().asString();
-			if (maybeMistaken.containsKey(nodeVal)) {
-				editedHNodeIds.add(new EditCellCommand(id, model, worksheetId,
-							node.getId(), maybeMistaken.get(nodeVal), selectionId));
-			}
-		}
-	}
-	*/
-
 	@Override
 	public UpdateContainer undoIt(Workspace workspace) {
 		Worksheet worksheet = workspace.getWorksheet(worksheetId);
@@ -272,11 +201,6 @@ public class GetSuggestionsCommand extends WorksheetSelectionCommand {
 			}
 		}
 
-		for (String s: maybeMistake) {
-			System.out.println(s);
-			System.out.println(occurrences.get(s));
-		}
-
 		for (String s1: maybeMistake) {
 			Double minimum_sim = Double.MAX_VALUE;
 			for (Map.Entry<String, Integer> entry: occurrences.entrySet()) {
@@ -300,9 +224,6 @@ public class GetSuggestionsCommand extends WorksheetSelectionCommand {
 					maybeMap.put(s1, s2);
 				}
 			}
-
-			System.out.println(s1);
-			System.out.println(maybeMap.get(s1));
 		}
 
 		return maybeMap;
